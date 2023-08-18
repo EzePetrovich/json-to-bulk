@@ -12,6 +12,7 @@ import {
   faCopy,
   faRightLong,
   faTrashCan,
+  faUpLong,
 } from '@fortawesome/free-solid-svg-icons';
 import { useRef, useState } from 'react';
 import { bulkData } from '../services/json-to-bulk';
@@ -21,6 +22,7 @@ export const App = () => {
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('');
   const [arrowAnimation, setArrowAnimation] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const jsonRef = useRef(null);
   const bulkRef = useRef(null);
@@ -40,8 +42,8 @@ export const App = () => {
   };
 
   const clearJson = () => {
-    jsonRef.current.value = '';
-    bulkRef.current.value = '';
+    jsonRef.current.value = null;
+    bulkRef.current.value = null;
     jsonRef.current.focus();
   };
 
@@ -49,6 +51,7 @@ export const App = () => {
     if (bulkRef.current.value.length > 0) {
       navigator.clipboard.writeText(bulkRef.current?.value);
       bulkRef.current.select();
+      document.execCommand('copy');
       openToast('Copiado al portapapeles con éxito.', 'success');
     } else {
       openToast('No hay valores por copiar.', 'error');
@@ -78,9 +81,36 @@ export const App = () => {
     setArrowAnimation(false);
   };
 
+  document.body.onscroll = () => {
+    if (
+      !showScrollTop &&
+      window.scrollY > Math.floor(document.documentElement.scrollHeight / 2) !=
+        showScrollTop
+    ) {
+      setShowScrollTop(
+        window.scrollY > Math.floor(document.documentElement.scrollHeight / 2)
+      );
+    } else if (showScrollTop) {
+      if (
+        window.scrollY < Math.floor(document.documentElement.scrollHeight / 3)
+      ) {
+        setShowScrollTop(window.scrollY < 100);
+      }
+    }
+  };
+
   return (
     <>
-      <Box display={'flex'} justifyContent={'space-between'}>
+      <Box
+        display={'flex'}
+        position={'sticky'}
+        bgcolor={'#222'}
+        top={0}
+        zIndex={99}
+        justifyContent={'space-between'}
+        padding={'1em'}
+        boxShadow={'0 3px 10px #111'}
+      >
         <Box display={'flex'} alignItems={'center'}>
           <Typography variant='h4' marginRight={'.5em'}>
             JSON
@@ -103,42 +133,64 @@ export const App = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          width: '100%',
+          marginTop: '1em',
+          marginBottom: '.5em',
         }}
       >
-        <Box sx={{ width: '45%' }}>
-          <TextField
-            InputProps={{ sx: { color: 'white' } }}
-            inputRef={(input) => (jsonRef.current = input)}
-            variant='filled'
-            placeholder='{...}'
-            multiline
-            fullWidth
-          ></TextField>
-        </Box>
+        <TextField
+          InputProps={{
+            sx: {
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            },
+          }}
+          inputRef={(input) => (jsonRef.current = input)}
+          variant='filled'
+          placeholder='{...}'
+          multiline
+          fullWidth
+        ></TextField>
         <Button
+          sx={{ margin: '.5em 1em', width: '15%' }}
           variant='contained'
           color='warning'
+          size='medium'
           onClick={jsonToBulk}
           onMouseOver={onArrowAnimate}
           onMouseOut={offArrowAnimate}
-          sx={{ color: 'white', width: '10%', margin: '1em' }}
         >
           <FontAwesomeIcon
-            size='2xl'
             icon={faRightLong}
+            size='2xl'
             beat={arrowAnimation}
           />
         </Button>
-        <Box sx={{ width: '45%' }}>
-          <TextField
-            InputProps={{ readOnly: true, sx: { color: 'white' } }}
-            inputRef={(input) => (bulkRef.current = input)}
-            variant='filled'
-            multiline
-            fullWidth
-          ></TextField>
-        </Box>
+        <TextField
+          InputProps={{ readOnly: true, sx: { color: 'white' } }}
+          inputRef={(input) => (bulkRef.current = input)}
+          variant='filled'
+          multiline
+          fullWidth
+        ></TextField>
+      </Box>
+      <Box
+        display={showScrollTop ? 'flex' : 'none'}
+        position={'sticky'}
+        bottom={0}
+        zIndex={99}
+        justifyContent={'center'}
+        padding={'1em'}
+      >
+        <Button
+          color='primary'
+          variant='contained'
+          sx={{ width: '30%' }}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <FontAwesomeIcon size='2xl' icon={faUpLong} bounce={true} />
+        </Button>
       </Box>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}

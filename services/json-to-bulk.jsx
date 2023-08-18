@@ -55,7 +55,7 @@ const bulkObjectData = (key, objectData) => {
     } else {
       bulkString[0] +=
         bulkString[0].length == 0
-          ? `${key}.${attribute}:${objectData[attribute]}\n`
+          ? `${key}.${attribute}:${objectData[attribute]}`
           : `\n${key}.${attribute}:${objectData[attribute]}`;
     }
   }
@@ -73,7 +73,7 @@ const bulkArrayData = (key, arrayData) => {
     } else {
       bulkString[0] +=
         bulkString[0].length == 0
-          ? `${key}[${i}]:${arrayData[i]}\n`
+          ? `${key}[${i}]:${arrayData[i]}`
           : `\n${key}[${i}]:${arrayData[i]}`;
     }
   }
