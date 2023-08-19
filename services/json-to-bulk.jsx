@@ -94,5 +94,5 @@ export const bulkData = (object) => {
           : `\n${key}:${object[key]}`;
     }
   }
-  return bulkString[0];
+  return bulkString[0].replaceAll('\n\n', '\n');
 };
